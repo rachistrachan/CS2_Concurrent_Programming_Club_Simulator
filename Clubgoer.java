@@ -59,7 +59,7 @@ public class Clubgoer extends Thread { // each club goer is a separate thread
 		// currentBlock
         // Clubgoer must remain on currentBlock.getX(), currentBlock.gety()
     }
-	private void startSim() {
+	synchronized  private void startSim() {
 		// THIS DOES NOTHING - MUST BE FIXED  	
         
     }
