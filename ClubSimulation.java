@@ -28,6 +28,7 @@ public class ClubSimulation {
 	static ClubView clubView; //threaded panel to display terrain
 	static ClubGrid clubGrid; // club grid
 	static CounterDisplay counterDisplay ; //threaded display of counters
+	static CountDownLatch sLatch = new CountDownLatch(1);
 	
 	private static int maxWait=1200; //for the slowest customer
 	private static int minWait=500; //for the fastest customer
@@ -68,7 +69,8 @@ public class ClubSimulation {
 		// add the listener to the jbutton to handle the "pressed" event
 		startB.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e)  {
-			    	  	// THIS DOES NOTHING - MUST BE FIXED  	  
+				sLatch.countDown();
+			    	  	// THIS DOES NOTHING - MUST BE FIXED
 		    }
 		   });
 			
@@ -100,11 +102,9 @@ public class ClubSimulation {
         frame.setContentPane(g);     
         frame.setVisible(true);	
 	}
-	
-	
 
 	public static void main(String[] args) throws InterruptedException {
-		
+
 		//deal with command line arguments if provided
 		if (args.length==4) {
 			noClubgoers=Integer.parseInt(args[0]);  //total people to enter room
@@ -128,7 +128,7 @@ public class ClubSimulation {
         for (int i=0;i<noClubgoers;i++) {
         		peopleLocations[i]=new PeopleLocation(i);
         		int movingSpeed=(int)(Math.random() * (maxWait-minWait)+minWait); //range of speeds for customers
-    			patrons[i] = new Clubgoer(i,peopleLocations[i],movingSpeed);
+    			patrons[i] = new Clubgoer(i,peopleLocations[i],movingSpeed, sLatch);
     		}
 		           
 		setupGUI(frameX, frameY,exit);  //Start Panel thread - for drawing animation

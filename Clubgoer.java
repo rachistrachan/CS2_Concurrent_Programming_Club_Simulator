@@ -22,10 +22,11 @@ public class Clubgoer extends Thread { // each club goer is a separate thread
 	private boolean thirsty;
 	private boolean wantToLeave;
 	
-	private int ID; //thread ID 
+	private int ID; //thread ID
+	private CountDownLatch sLatch;
 
 	
-	Clubgoer( int ID,  PeopleLocation loc,  int speed) {
+	Clubgoer( int ID,  PeopleLocation loc,  int speed, CountDownLatch sLatch) {
 		this.ID=ID;
 		movingSpeed=speed; //range of speeds for customers
 		this.myLocation = loc; //for easy lookups
@@ -33,6 +34,7 @@ public class Clubgoer extends Thread { // each club goer is a separate thread
 		thirsty=true; //thirsty when arrive
 		wantToLeave=false;	 //want to stay when arrive
 		rand=new Random();
+		this.sLatch = sLatch;
 	}
 	
 	//getter
@@ -60,7 +62,14 @@ public class Clubgoer extends Thread { // each club goer is a separate thread
         // Clubgoer must remain on currentBlock.getX(), currentBlock.gety()
     }
 	synchronized  private void startSim() {
-		// THIS DOES NOTHING - MUST BE FIXED  	
+		try {
+			sLatch.await();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+
+		// latch - only use once
+		// countDownLatch
         
     }
 	
