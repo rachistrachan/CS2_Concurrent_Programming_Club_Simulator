@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class GridBlock {
 	private int isOccupied; 
-	private final boolean isExit;  //is tthis the exit door?
+	private final boolean isExit;  //is this the exit door?
 	private final boolean isBar; //is it a bar block?
 	private final boolean isDance; //is it the dance area?
 	private int [] coords; // the coordinate of the block.

@@ -24,10 +24,8 @@ public class Clubgoer extends Thread { // each club goer is a separate thread
 
 	private int ID; //thread ID
 	private CountDownLatch sLatch; // latch
-	//private CountDownLatch pLatch;
-	//private volatile boolean pause = false;
-	private volatile boolean pause = false;
-	private final Object pLock = new Object();
+	private volatile boolean pause = false; // flag to indicate if threads must pause or not
+	private final Object pLock = new Object(); // shared object to coordinate when threads pause and resume
 
 	Clubgoer(int ID, PeopleLocation loc, int speed, CountDownLatch sLatch) {
 		this.ID = ID;
@@ -64,62 +62,29 @@ public class Clubgoer extends Thread { // each club goer is a separate thread
 	//setter
 
 	//check to see if user pressed pause button
-
-
+	// waits while pause is true
 	 public void checkPause() throws InterruptedException {
-		synchronized (pLock) {
+		synchronized (pLock) { // aquires lock
 			while (pause) {
 				try {
 					pLock.wait();
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}
-
 			}
 		}
 	}
-	 public void adjustPause(){
-			synchronized (pLock){
-				pause=!pause;
-				if (!pause){
-					pLock.notifyAll();
-
-			}
-		}
-
-
-		}
-
-	//}
-	/*public synchronized void notifyPause(){
-		synchronized (pause){
-			pause.set(false);
-			notifyAll();*/
-
-		/*synchronized (pause) {
-				while (!pause.get()) {
-					pause.wait();
-					}
-				}
-			}
-	private void resumeThread(){
-		synchronized (pause){
-			pause.set(true);
-			pause.notifyAll();
-		}}
-	 public void togglePause() {
-		pause.set(!pause.get());
-		if (!pause.get()) {
-			resumeThread();
-		}*/
-		//movingSpeed =
-		// THIS DOES NOTHING - MUST BE FIXED
-		// pause movingSpeed until pause button is pressed again
-		// currentBlock
-        // Clubgoer must remain on currentBlock.getX(), currentBlock.gety()
+	// notifies threads when pause button has been resumed
+	 public void adjustPause() {
+		 synchronized (pLock) {
+			 pause = !pause;
+			 if (!pause) {
+				 pLock.notifyAll();
+			 }
+		 }
+	 }
 	synchronized  private void startSim() {
 		try {
-			//pLatch.countDown(); // Allow threads to start initially
 			sLatch.await();
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
