@@ -29,6 +29,7 @@ public class ClubSimulation {
 	static ClubGrid clubGrid; // club grid
 	static CounterDisplay counterDisplay ; //threaded display of counters
 	static CountDownLatch sLatch = new CountDownLatch(1);
+	//static CountDownLatch pLatch = new CountDownLatch(1);
 	
 	private static int maxWait=1200; //for the slowest customer
 	private static int minWait=500; //for the fastest customer
@@ -70,16 +71,17 @@ public class ClubSimulation {
 		startB.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e)  {
 				sLatch.countDown();
-			    	  	// THIS DOES NOTHING - MUST BE FIXED
 		    }
 		   });
 			
 			final JButton pauseB = new JButton("Pause ");;
-			
 			// add the listener to the jbutton to handle the "pressed" event
 			pauseB.addActionListener(new ActionListener() {
 		      public void actionPerformed(ActionEvent e) {
-		    		// THIS DOES NOTHING - MUST BE FIXED  	
+				  for (Clubgoer patron : patrons) {
+						  patron.adjustPause(); // Toggle the pause flag for all Clubgoer instances.
+
+				  }
 		      }
 		    });
 			

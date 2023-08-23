@@ -10,64 +10,120 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 
 public class Clubgoer extends Thread { // each club goer is a separate thread
-	
+
 	public static ClubGrid club; //shared club
 
 	GridBlock currentBlock;
 	private Random rand;
 	private int movingSpeed;
-	
+
 	private PeopleLocation myLocation;
 	private boolean inRoom;
 	private boolean thirsty;
 	private boolean wantToLeave;
-	
-	private int ID; //thread ID
-	private CountDownLatch sLatch;
 
-	
-	Clubgoer( int ID,  PeopleLocation loc,  int speed, CountDownLatch sLatch) {
-		this.ID=ID;
-		movingSpeed=speed; //range of speeds for customers
+	private int ID; //thread ID
+	private CountDownLatch sLatch; // latch
+	//private CountDownLatch pLatch;
+	//private volatile boolean pause = false;
+	private volatile boolean pause = false;
+	private final Object pLock = new Object();
+
+	Clubgoer(int ID, PeopleLocation loc, int speed, CountDownLatch sLatch) {
+		this.ID = ID;
+		movingSpeed = speed; //range of speeds for customers
 		this.myLocation = loc; //for easy lookups
-		inRoom=false; //not in room yet
-		thirsty=true; //thirsty when arrive
-		wantToLeave=false;	 //want to stay when arrive
-		rand=new Random();
+		inRoom = false; //not in room yet
+		thirsty = true; //thirsty when arrive
+		wantToLeave = false;     //want to stay when arrive
+		rand = new Random();
 		this.sLatch = sLatch;
+		//this.pLatch = new CountDownLatch(1);
 	}
-	
+
 	//getter
-	synchronized public  boolean inRoom() {
+	synchronized public boolean inRoom() {
 		return inRoom;
 	}
-	
+
 	//getter
-	synchronized public   int getX() { return currentBlock.getX();}
-	
+	synchronized public int getX() {
+		return currentBlock.getX();
+	}
+
 	//getter
-	synchronized public   int getY() {	return currentBlock.getY();	}
-	
+	synchronized public int getY() {
+		return currentBlock.getY();
+	}
+
 	//getter
-	synchronized public   int getSpeed() { return movingSpeed; }
+	synchronized public int getSpeed() {
+		return movingSpeed;
+	}
 
 	//setter
 
 	//check to see if user pressed pause button
-	synchronized private void checkPause() {
+
+
+	 public void checkPause() throws InterruptedException {
+		synchronized (pLock) {
+			while (pause) {
+				try {
+					pLock.wait();
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+
+			}
+		}
+	}
+	 public void adjustPause(){
+			synchronized (pLock){
+				pause=!pause;
+				if (!pause){
+					pLock.notifyAll();
+
+			}
+		}
+
+
+		}
+
+	//}
+	/*public synchronized void notifyPause(){
+		synchronized (pause){
+			pause.set(false);
+			notifyAll();*/
+
+		/*synchronized (pause) {
+				while (!pause.get()) {
+					pause.wait();
+					}
+				}
+			}
+	private void resumeThread(){
+		synchronized (pause){
+			pause.set(true);
+			pause.notifyAll();
+		}}
+	 public void togglePause() {
+		pause.set(!pause.get());
+		if (!pause.get()) {
+			resumeThread();
+		}*/
 		//movingSpeed =
 		// THIS DOES NOTHING - MUST BE FIXED
 		// pause movingSpeed until pause button is pressed again
 		// currentBlock
         // Clubgoer must remain on currentBlock.getX(), currentBlock.gety()
-    }
 	synchronized  private void startSim() {
 		try {
+			//pLatch.countDown(); // Allow threads to start initially
 			sLatch.await();
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-
 		// latch - only use once
 		// countDownLatch
         
