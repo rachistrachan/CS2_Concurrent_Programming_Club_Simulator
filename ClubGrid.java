@@ -77,7 +77,6 @@ public class ClubGrid {
 	}
 	
 	public GridBlock enterClub(PeopleLocation myLocation) throws InterruptedException {
-
 		synchronized (entranceAccessLock) {
 			while(counter.overCapacity()) {
 				entranceAccessLock.wait();
@@ -122,16 +121,12 @@ public class ClubGrid {
 		return newBlock;
 	}
 
-	public  void leaveClub(GridBlock currentBlock,PeopleLocation myLocation)   {
+	public  void leaveClub(GridBlock currentBlock,PeopleLocation myLocation)   { // edit!! no one is leaving
 		synchronized (exitAccessLock){
-		try{
 			currentBlock.release();
 			counter.personLeft(); //add to counter
 			myLocation.setInRoom(false);
-			entrance.notifyAll();
-	} finally {
 			exitAccessLock.notifyAll();
-		}
 		}}
 
 	public GridBlock getExit() {
