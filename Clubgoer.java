@@ -24,8 +24,9 @@ public class Clubgoer extends Thread { // each club goer is a separate thread
 
 	private int ID; //thread ID
 	private CountDownLatch sLatch; // latch
-	private volatile boolean pause = false; // flag to indicate if threads must pause or not
-	private final Object pLock = new Object(); // shared object to coordinate when threads pause and resume
+	//private volatile boolean pause = false; // flag to indicate if threads must pause or not
+	private AtomicBoolean pause = new AtomicBoolean(false);
+	//private final Object pLock = new Object(); // shared object to coordinate when threads pause and resume
 
 	Clubgoer(int ID, PeopleLocation loc, int speed, CountDownLatch sLatch) {
 		this.ID = ID;
@@ -64,24 +65,32 @@ public class Clubgoer extends Thread { // each club goer is a separate thread
 	//check to see if user pressed pause button
 	// waits while pause is true
 	 public void checkPause() throws InterruptedException {
-		synchronized (pLock) { // aquires lock
-			while (pause) {
-				try {
-					pLock.wait();
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-	}
+		 if (inRoom) {
+			 synchronized (pause) { // aquires lock
+				 while (pause.get()) {
+					 try {
+						 pause.wait();
+					 } catch (InterruptedException e) {
+						 throw new RuntimeException(e);
+					 }
+				 }
+			 }
+		 }
+	 }
 	// notifies threads when pause button has been resumed
 	 public void adjustPause() {
-		 synchronized (pLock) {
+		pause.set(!pause.get());
+		if (!pause.get()){
+			synchronized (pause){
+				pause.notifyAll();
+			}
+		}
+		/* synchronized (pLock) {
 			 pause = !pause;
 			 if (!pause) {
 				 pLock.notifyAll();
 			 }
-		 }
+		 }*/
 	 }
 	synchronized  private void startSim() {
 		try {
